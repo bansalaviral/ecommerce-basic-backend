@@ -4,9 +4,8 @@ const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
   const { email, name, password } = req.body;
-  console.log(req.body);
-  //check if all details are entered
 
+  //check if all details are entered
   if (!email || !name || !password) {
     return res.status(400).json({
       message: "enter all details",
@@ -26,7 +25,7 @@ const registerUser = async (req, res) => {
         email,
         password: hash,
       });
-      console.log(user);
+
       if (user) {
         return res.status(201).json({
           _id: user.id,
@@ -62,7 +61,6 @@ const loginUser = async (req, res) => {
 
 const updateCart = async (req, res) => {
   const { cartItems } = req.body;
-  console.log(cartItems);
   const { id } = req.user;
 
   await User.findByIdAndUpdate(id, { $set: { cart: cartItems } });
