@@ -60,11 +60,22 @@ const loginUser = async (req, res) => {
   }
 };
 
+const updateCart = async (req, res) => {
+  const { cartItems } = req.body;
+  console.log(cartItems);
+  const { id } = req.user;
+
+  await User.findByIdAndUpdate(id, { $set: { cart: cartItems } });
+
+  const user = await User.findById(id);
+
+  res.status(200).json(user);
+};
+
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
 };
-const getMe = (req, res) => {};
 
-module.exports = { registerUser, loginUser, getMe };
+module.exports = { registerUser, loginUser, updateCart };
