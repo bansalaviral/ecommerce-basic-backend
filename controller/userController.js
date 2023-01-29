@@ -59,11 +59,15 @@ const loginUser = async (req, res) => {
   }
 };
 
-const updateCart = async (req, res) => {
+const order = async (req, res) => {
   const { cartItems } = req.body;
   const { id } = req.user;
 
-  await User.findByIdAndUpdate(id, { $set: { cart: cartItems } });
+  const { orders: previousOrders } = await User.findById(id);
+
+  await User.findByIdAndUpdate(id, {
+    $set: { orders: [...previousOrders, ...cartItems] },
+  });
 
   const user = await User.findById(id);
 
@@ -76,4 +80,4 @@ const generateToken = (id) => {
   });
 };
 
-module.exports = { registerUser, loginUser, updateCart };
+module.exports = { registerUser, loginUser, order };
