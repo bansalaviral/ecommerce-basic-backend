@@ -1,4 +1,5 @@
 const { User } = require("../models/user.js");
+const { Product } = require("../models/Product.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -46,32 +47,52 @@ const loginUser = async (req, res) => {
 
   const user = await User.findOne({ email });
   if (user && (await bcrypt.compare(password, user.password))) {
-    res.status(200).json({
+    return res.status(200).json({
       id: user.id,
       email: user.email,
       name: user.name,
       token: generateToken(user._id),
     });
   } else {
-    res.status(400).json({
+    return res.status(400).json({
       message: "Invalid User credentials",
     });
   }
 };
 
-const order = async (req, res) => {
+const postOrder = async (req, res) => {
   const { cartItems } = req.body;
   const { id } = req.user;
 
   const { orders: previousOrders } = await User.findById(id);
 
   await User.findByIdAndUpdate(id, {
-    $set: { orders: [...previousOrders, ...cartItems] },
+    $push: { orders: { $each: cartItems, $position: 0 } },
   });
 
   const user = await User.findById(id);
 
-  res.status(200).json(user);
+  return res.status(200).json(user);
+};
+
+const getOrder = async (req, res) => {
+  const { id } = req.user;
+  const { orders } = await User.findById(id);
+  console.log(orders);
+
+  const productDetailPromises = orders.map(({ id }) => {
+    const productDetailPromise = Product.findById(id);
+    return productDetailPromise;
+  });
+
+  let allProductDetails = await Promise.all(productDetailPromises);
+  allProductDetails = allProductDetails.map((prod, idx) => ({
+    ...prod.toObject(),
+    ["qty"]: orders[idx]["qty"],
+    ["createdAt"]: orders[idx]["createdAt"],
+  }));
+
+  return res.status(200).json(allProductDetails);
 };
 
 const generateToken = (id) => {
@@ -80,4 +101,4 @@ const generateToken = (id) => {
   });
 };
 
-module.exports = { registerUser, loginUser, order };
+module.exports = { registerUser, loginUser, postOrder, getOrder };

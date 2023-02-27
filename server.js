@@ -22,3 +22,17 @@ app.use("/api/users", userRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// const { User } = require("./models/user");
+// const { Product } = require("./models/Product");
+
+// User.deleteMany()
+//   .then(() => {
+//     console.log("hi");
+//   })
+//   .catch((err) => console.log(err));
+// Product.deleteMany()
+//   .then(() => {
+//     console.log("hi");
+//   })
+//   .catch((err) => console.log(err));
