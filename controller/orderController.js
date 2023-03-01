@@ -22,7 +22,7 @@ const createOrder = async (req, res) => {
   const session = await createStripeSession(items, email, id);
 
   return res.status(200).json({
-    id: session.id,
+    url: session.url,
   });
 };
 
