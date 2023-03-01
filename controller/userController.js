@@ -1,5 +1,4 @@
 const { User } = require("../models/user.js");
-const { Product } = require("../models/Product.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -60,45 +59,10 @@ const loginUser = async (req, res) => {
   }
 };
 
-const postOrder = async (req, res) => {
-  const { cartItems } = req.body;
-  const { id } = req.user;
-
-  const { orders: previousOrders } = await User.findById(id);
-
-  await User.findByIdAndUpdate(id, {
-    $push: { orders: { $each: cartItems, $position: 0 } },
-  });
-
-  const user = await User.findById(id);
-
-  return res.status(200).json(user);
-};
-
-const getOrder = async (req, res) => {
-  const { id } = req.user;
-  const { orders } = await User.findById(id);
-  console.log(orders);
-
-  const productDetailPromises = orders.map(({ id }) => {
-    const productDetailPromise = Product.findById(id);
-    return productDetailPromise;
-  });
-
-  let allProductDetails = await Promise.all(productDetailPromises);
-  allProductDetails = allProductDetails.map((prod, idx) => ({
-    ...prod.toObject(),
-    ["qty"]: orders[idx]["qty"],
-    ["createdAt"]: orders[idx]["createdAt"],
-  }));
-
-  return res.status(200).json(allProductDetails);
-};
-
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
 };
 
-module.exports = { registerUser, loginUser, postOrder, getOrder };
+module.exports = { registerUser, loginUser };
